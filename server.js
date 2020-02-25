@@ -10,21 +10,22 @@ const debug = 1;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(express.static('public'))
 
 
-var dbNotes = JSON.parse(fs.readFile(dbFile, 'utf8', function(err) {
+var dbNotes = JSON.parse(fs.readFileSync(dbFile, 'utf8', function(err) {
     if(err) {
-        console.log(err);
+        console.log(`dbNotes error: ${err}`);
     }
 }));/// FINISH THIS TO GET NOTES
 
 //ROUTES
 //============================================
 app.get("/", function(req, res) {
-    res.sendFile(path.join(__dirname, "index.html"));
+    res.sendFile(path.join(__dirname, "./public/index.html"));
   });
 app.get("/notes", function(req, res) {
-    res.sendFile(path.join(__dirname, "notes.html"));
+    res.sendFile(path.join(__dirname, "./public/notes.html"));
   });
 
 
@@ -32,19 +33,21 @@ app.get("/api/notes", function(req, res) {
     return res.json(dbNotes);
   });
 app.post("/api/notes", function(req, res) {
-    let newNote = req.body;
+    //let newNote = req.body;
+    let newNote = Object.assign({a: 1}, req.body);
+    debug && console.log(newNote);
     dbNotes.push(newNote);
     //ADD NEW NOTE TO FS
-    fs.writeFileSync(JSON.stringify(dbNotes), dbFile);
+    fs.writeFileSync(dbFile, JSON.stringify(dbNotes));
     res.json(dbNotes); // return notes with new note included
   });
 app.delete("/api/notes/:id", function(req, res) {
     let delNote = req.params.id;
-    debug && console.log(delNote);
+    debug && console.log(`app.delete: ${delNote}`);
 
     let delIndex = dbNotes.map(function(item) {return item.id}).indexOf(delNote);
     dbNotes.splice(delIndex, 1);
-    fs.writeFileSync(JSON.stringify(dbNotes), dbFile);
+    fs.writeFileSync(dbFile, JSON.stringify(dbNotes));
     //read db.json
     //remove id from db.json
     //rewrite db.json
