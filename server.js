@@ -34,8 +34,10 @@ app.get("/api/notes", function (req, res) {
 });
 app.post("/api/notes", function (req, res) {
   //let newNote = req.body;
+  console.log(req.body);
   let newNote = Object.assign(getNewId(), req.body);
-  debug && console.log(newNote);
+  debug && console.log(`new note from post: ${newNote}`);
+  console.log(newNote);
   dbNotes.push(newNote);
   //ADD NEW NOTE TO FS
   fs.writeFileSync(dbFile, JSON.stringify(dbNotes));
@@ -62,8 +64,15 @@ app.listen(PORT, function () {
 /////////////////////////
 //get new ID
 function getNewId() {
-  console.log (dbNotes[0].id)
-  let newId = dbNotes[dbNotes.length -1].id + 1; //gets last ID
+  let newId = {};
+  console.log(dbNotes);
+  if (typeof dbNotes.id === 'undefined') {
+    newId.id = 0;
+  }
+  else {
+    console.log (dbNotes[0].id);
+    newId.id = dbNotes[dbNotes.length -1].id + 1; //gets last ID 
+  }
   debug && console.log(`lastID of getNewId: ${newId}`);
   return newId;
 }
