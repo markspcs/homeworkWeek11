@@ -46,11 +46,13 @@ app.post("/api/notes", function (req, res) {
 app.delete("/api/notes/:id", function (req, res) {
   let delNote = req.params.id;
   debug && console.log(`app.delete: ${delNote}`);
-
-  let delIndex = dbNotes.map(function (item) { return item.id }).indexOf(delNote);
+  debug && console.log(dbNotes);
+  let delIndex = dbNotes.findIndex(x => x.id == delNote);
+  //let delIndex = dbNotes.map(function (item) { return item.id }).indexOf(delNote);
   debug && console.log(`delIndex: ${delIndex}`);
   dbNotes.splice(delIndex, 1);
   fs.writeFileSync(dbFile, JSON.stringify(dbNotes));
+  res.json(dbNotes);
   //read db.json
   //remove id from db.json
   //rewrite db.json
@@ -66,13 +68,14 @@ app.listen(PORT, function () {
 function getNewId() {
   let newId = {};
   console.log(dbNotes);
-  if (typeof dbNotes.id === 'undefined') {
-    newId.id = 0;
+  console.log(dbNotes.length);
+  if (dbNotes.length) {
+    newId.id = dbNotes[dbNotes.length -1].id + 1;
+    console.log (`last id in else: ${dbNotes[dbNotes.length -1].id}`);
   }
   else {
-    console.log (dbNotes[0].id);
-    newId.id = dbNotes[dbNotes.length -1].id + 1; //gets last ID 
+    newId.id = 0; 
   }
-  debug && console.log(`lastID of getNewId: ${newId}`);
+  debug && console.log(`lastID of getNewId: ${newId.id}`);
   return newId;
 }
